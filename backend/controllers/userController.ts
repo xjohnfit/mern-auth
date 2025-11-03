@@ -57,12 +57,36 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
 
 export const getUserProfile = asyncHandler(
     async (req: Request, res: Response) => {
-        res.status(200).json({ message: 'User profile fetched successfully' });
+        const { _id, name, email } = req.user!;
+        res.status(200).json({
+            _id,
+            name,
+            email,
+        });
     }
 );
 
 export const updateUserProfile = asyncHandler(
     async (req: Request, res: Response) => {
-        res.status(200).json({ message: 'User profile updated successfully' });
+        const user = await User.findById(req.user!._id);
+        if (!user) {
+            res.status(404);
+            throw new Error('User not found');
+        }
+
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        
+
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+        res.status(200).json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+        });
     }
 );

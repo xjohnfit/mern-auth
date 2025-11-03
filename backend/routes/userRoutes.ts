@@ -8,7 +8,6 @@ import {
 } from '../controllers/userController.ts';
 import { protect } from '../middleware/authMiddleware.ts';
 
-
 const router = express.Router();
 
 router.post('/', registerUser);

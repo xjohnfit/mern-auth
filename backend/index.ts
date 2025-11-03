@@ -1,11 +1,11 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { notFound, errorHandler } from './middleware/errorMiddleware.ts';
-import connectDB from './config/db.ts';
+import { notFound, errorHandler } from './middleware/errorMiddleware';
+import connectDB from './config/db';
 
-// Routes
-import userRoutes from './routes/userRoutes.ts';
+// Routes imports
+import userRoutes from './routes/userRoutes';
 
 // Configs
 dotenv.config({
