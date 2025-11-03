@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
 import FormContainer from '../components/FormContainer';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
-import { useRegisterMutation } from '../slices/usersApiSlice';
+import { useUpdateProfileMutation } from '../slices/usersApiSlice';
+
 interface RegisterScreenProps {
     name: string;
     email: string;
@@ -14,8 +15,8 @@ interface RegisterScreenProps {
     confirmPassword: string;
 }
 
-const RegisterScreen = () => {
-    const [registerData, setRegisterData] = useState<RegisterScreenProps>({
+const ProfileScreen = () => {
+    const [profileData, setProfileData] = useState<RegisterScreenProps>({
         name: '',
         email: '',
         password: '',
@@ -27,39 +28,42 @@ const RegisterScreen = () => {
 
     const { userInfo } = useSelector((state: any) => state.auth);
 
+    const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+
     useEffect(() => {
         if (userInfo) {
-            navigate('/');
+            setProfileData({
+                name: userInfo.name,
+                email: userInfo.email,
+                password: '',
+                confirmPassword: '',
+            });
         }
-    }, [userInfo, navigate]);
-
-    const [register, { isLoading, error }] = useRegisterMutation();
+    }, [userInfo]);
 
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (registerData.password !== registerData.confirmPassword) {
+        if (profileData.password !== profileData.confirmPassword) {
             toast.error('Passwords do not match');
             return;
         }
-
         try {
-            // Only send fields the API expects
-            const body = {
-                name: registerData.name,
-                email: registerData.email,
-                password: registerData.password,
-            };
-            const res = await register(body).unwrap();
-            dispatch(setCredentials({ ...res }));
-            navigate('/');
+          const res = await updateProfile({
+            _id: userInfo._id,
+            name: profileData.name,
+            email: profileData.email,
+            password: profileData.password,
+          }).unwrap();
+          dispatch(setCredentials({ ...res }));
+          toast.success('Profile Updated Successfully');
         } catch (err: string | any) {
-            toast.error(err?.data?.message || err?.error);
+          toast.error(err?.data?.message || err?.error);
         }
     };
 
     return (
         <FormContainer>
-            <h1 className='text-center'>Sign Up</h1>
+            <h1 className='text-center'>Update Profile</h1>
             <Form
                 onSubmit={submitHandler}
                 className='d-flex flex-column'>
@@ -70,10 +74,10 @@ const RegisterScreen = () => {
                     <Form.Control
                         type='text'
                         placeholder='Enter name'
-                        value={registerData.name}
+                        value={profileData.name}
                         onChange={(e) =>
-                            setRegisterData({
-                                ...registerData,
+                            setProfileData({
+                                ...profileData,
                                 name: e.target.value,
                             })
                         }
@@ -86,10 +90,10 @@ const RegisterScreen = () => {
                     <Form.Control
                         type='email'
                         placeholder='Enter email'
-                        value={registerData.email}
+                        value={profileData.email}
                         onChange={(e) =>
-                            setRegisterData({
-                                ...registerData,
+                            setProfileData({
+                                ...profileData,
                                 email: e.target.value,
                             })
                         }
@@ -103,10 +107,10 @@ const RegisterScreen = () => {
                     <Form.Control
                         type='password'
                         placeholder='Enter password'
-                        value={registerData.password}
+                        value={profileData.password}
                         onChange={(e) =>
-                            setRegisterData({
-                                ...registerData,
+                            setProfileData({
+                                ...profileData,
                                 password: e.target.value,
                             })
                         }
@@ -119,10 +123,10 @@ const RegisterScreen = () => {
                     <Form.Control
                         type='password'
                         placeholder='Confirm password'
-                        value={registerData.confirmPassword}
+                        value={profileData.confirmPassword}
                         onChange={(e) =>
-                            setRegisterData({
-                                ...registerData,
+                            setProfileData({
+                                ...profileData,
                                 confirmPassword: e.target.value,
                             })
                         }
@@ -135,17 +139,11 @@ const RegisterScreen = () => {
                     type='submit'
                     variant='primary'
                     className='m-2'
-                    disabled={isLoading}>
-                    Sign Up
+                    >
+                    Update Profile
                 </Button>
-
-                <Row className='py-3 text-center'>
-                    <Col>
-                        Already have an account? <Link to='/login'>Login</Link>
-                    </Col>
-                </Row>
             </Form>
         </FormContainer>
     );
 };
-export default RegisterScreen;
+export default ProfileScreen;
