@@ -10,6 +10,8 @@ import App from './App.tsx'
 import HomeScreen from './screens/HomeScreen.tsx';
 import LoginScreen from './screens/LoginScreen.tsx';
 import RegisterScreen from './screens/RegisterScreen.tsx';
+import ProfileScreen from './screens/ProfileScreen.tsx';
+import PrivateRoute from './components/PrivateRoute.tsx';
 
 const router = createBrowserRouter([
   {
@@ -19,6 +21,12 @@ const router = createBrowserRouter([
       { index: true, Component: HomeScreen },
       { path: "/login", Component: LoginScreen },
       { path: "/register", Component: RegisterScreen },
+      {
+        element: <PrivateRoute />,
+        children: [
+          { path: "/profile", Component: ProfileScreen },
+        ],
+      },
     ],
   }
 ]);
